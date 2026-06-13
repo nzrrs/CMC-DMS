@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Example</title>
+</head>
+<body>
+  <h1>Document generation ( word example )</h1> 
+   <a href="{{ route('test') }}">download (attestation_travail)</a>
+</body>
+</html>
