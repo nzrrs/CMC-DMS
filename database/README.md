@@ -145,7 +145,7 @@ Stores system users.
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INTEGER | Primary key |
-| firs_name | VARCHAR(255) | First name |
+| first_name | VARCHAR(255) | First name |
 | last_name | VARCHAR(255) | Last name |
 | gender | ENUM(M,F) | Gender |
 | email | VARCHAR(255) | Unique email |
@@ -257,7 +257,7 @@ erDiagram
 
 	users {
 		INTEGER id
-		VARCHAR(255) firs_name
+		VARCHAR(255) first_name
 		VARCHAR(255) last_name
 		ENUM gender
 		VARCHAR(255) email
