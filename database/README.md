@@ -1,5 +1,25 @@
 # CMC-DMS Database Documentation
 
+---
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Database Type](#2-database-type)
+3. [Core Design Overview](#3-core-design-overview)
+4. [Table Structure](#4-table-structure)
+   - 4.1 [document_types](#41-document_types)
+   - 4.2 [document_groups](#42-document_groups)
+   - 4.3 [document_fields](#43-document_fields)
+   - 4.4 [document_groups_map](#44-document_groups_map)
+   - 4.5 [generated_documents](#45-generated_documents)
+   - 4.6 [users](#46-users)
+   - 4.7 [role_document_types](#47-role_document_types)
+   - 4.8 [roles](#48-roles)
+5. [Relationships](#5-relationships)
+6. [Database Diagram](#6-database-diagram)
+
+---
 ## 1. Introduction
 
 This database is designed for a Document Management System (DMS).  
