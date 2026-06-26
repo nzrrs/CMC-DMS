@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('document_types', function (Blueprint $table) {
             $table->id();
+            $table->string('name')->unique();
+            $table->string('template_path');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

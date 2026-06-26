@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +12,28 @@ return new class extends Migration
     {
         Schema::create('generated_documents', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+
+            $table->foreignId('document_type_id')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+
+            $table->string('file_name');
+            $table->string('file_path');
+
+            $table->unsignedInteger('version')->default(1);
+
+            $table->enum('status', ['PENDING', 'FAILED', 'SUCCESS'])
+                ->default('PENDING');
+
             $table->timestamps();
+
+            $table->unique(['user_id', 'document_type_id', 'version']);
         });
     }
 

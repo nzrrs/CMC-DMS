@@ -2,5 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/test-doc', [App\Http\Controllers\DocController::class, 'test'])->name('test');
-Route::get('/test', [App\Http\Controllers\DocController::class, 'index'])->name('index');
+Route::get('/', function () {
+    return response()->json([
+        'service' => 'CMC-DMS API',
+        'status' => 'OK',
+    ]);
+});
