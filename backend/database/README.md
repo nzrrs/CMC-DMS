@@ -232,7 +232,7 @@ erDiagram
 	document_types {
 		INTEGER id
 		VARCHAR(255) template_name
-		TEXT file_path
+		VARCHAR(255) file_path
 		BOOLEAN is_active
 		TIMESTAMP created_at
 		TIMESTAMP updated_at
@@ -241,6 +241,13 @@ erDiagram
 	document_groups {
 		INTEGER id
 		VARCHAR(255) name
+		TIMESTAMP created_at
+		TIMESTAMP updated_at
+	}
+
+	document_groups_map {
+		INTEGER document_group_id
+		INTEGER document_type_id
 		TIMESTAMP created_at
 		TIMESTAMP updated_at
 	}
@@ -258,18 +265,12 @@ erDiagram
 		TIMESTAMP updated_at
 	}
 
-	document_groups_map {
-		INTEGER group_id
-		INTEGER document_type_id
-		TIMESTAMP created_at
-		TIMESTAMP updated_at
-	}
-
 	generated_documents {
 		INTEGER id
 		INTEGER user_id
 		INTEGER document_type_id
-		TEXT file_path
+		VARCHAR(255) file_name
+		VARCHAR(255) file_path
 		INTEGER version
 		ENUM status
 		TIMESTAMP created_at
@@ -277,12 +278,12 @@ erDiagram
 
 	users {
 		INTEGER id
+		INTEGER role_id
 		VARCHAR(255) first_name
 		VARCHAR(255) last_name
 		ENUM gender
 		VARCHAR(255) email
 		VARCHAR(255) password
-		INTEGER role_id
 		DATETIME created_at
 		TIMESTAMP updated_at
 	}
