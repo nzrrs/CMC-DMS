@@ -17,7 +17,7 @@ return new class extends Migration {
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->string('field_key');
-            $table->enum('field_type',['AUTO','INPUT','SELECT','DATE','NUMBER']);
+            $table->enum('field_type',['AUTO','INPUT','SELECT','DATE','NUMBER','SYSTEM']);
             $table->string('source_table')->nullable();
             $table->string('source_field')->nullable();
             $table->boolean('is_required')->default(true);

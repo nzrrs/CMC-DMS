@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DocumentType extends Model
 {
     protected $fillable = [
-        'name',
+        'template_name',
         'template_path',
         'is_active',
     ];

@@ -10,8 +10,8 @@ class GeneratedDocument extends Model
     protected $fillable = [
         'user_id',
         'document_type_id',
-        'file_name',
-        'file_path',
+        'generated_name',
+        'generated_path',
         'version',
         'status',
     ];

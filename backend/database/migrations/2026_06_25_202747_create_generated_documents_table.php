@@ -23,8 +23,8 @@ return new class extends Migration {
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
 
-            $table->string('file_name');
-            $table->string('file_path');
+            $table->string('generated_name');
+            $table->string('generated_path');
 
             $table->unsignedInteger('version')->default(1);
 
