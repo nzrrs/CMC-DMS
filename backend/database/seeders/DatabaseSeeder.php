@@ -95,7 +95,7 @@ class DatabaseSeeder extends Seeder
         DB::table('document_types')->insert([
             [
                 'template_name' => 'Attestation de Travail',
-                'template_path' => 'templates/work-attestation.docx',
+                'template_path' => 'templates/attestation_travail.docx',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
