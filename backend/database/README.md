@@ -1,9 +1,6 @@
 # CMC-DMS Database Documentation
-
 ---
-
 ## Table of Contents
-
 1. [Introduction](#1-introduction)
 2. [Database Type](#2-database-type)
 3. [Core Design Overview](#3-core-design-overview)
@@ -16,289 +13,305 @@
    - 4.6 [users](#46-users)
    - 4.7 [role_document_types](#47-role_document_types)
    - 4.8 [roles](#48-roles)
+   - 4.9 [employees](#49-employees)
 5. [Relationships](#5-relationships)
 6. [Database Diagram](#6-database-diagram)
-
 ---
 ## 1. Introduction
 
-This database is designed for a Document Management System (DMS).  
+This database is designed for a Document Management System (DMS).
 It handles document templates, dynamic fields, role-based access control, and generated document tracking with versioning.
-
 The system allows controlled access to documents based on user roles and supports structured document generation from reusable templates.
 
 ---
-
 ## 2. Database Type
 
-- **DBMS:** MySQL  
-- **Model:** Relational database  
-- **Architecture:** RBAC (Role-Based Access Control) with document template system  
+> [!NOTE]
+> - **DBMS:** MySQL
+> - **Model:** Relational database
+> - **Architecture:** RBAC (Role-Based Access Control) with document template system
 
 ---
-
 ## 3. Core Design Overview
 
 The system is built around the following components:
 
-- **Document Types:** Define templates and metadata
-- **Document Fields:** Define dynamic fields inside templates
-- **Document Groups:** Organize document types
-- **Roles:** Control access to document types
-- **Generated Documents:** Store output history with versioning per user
+> [!TIP]
+> - **Document Types:** Define templates and metadata
+> - **Document Fields:** Define dynamic fields inside templates
+> - **Document Groups:** Organize document types
+> - **Roles:** Control access to document types
+> - **Generated Documents:** Store output history with versioning per user
+> - **Employees:** Extended profile for staff users
 
 ---
-
 ## 4. Table Structure
 
 ---
-
 ### 4.1 document_types
-
 Stores document templates used for generation.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INTEGER | Primary key |
-| template_name | VARCHAR(255) | Unique template name |
-| file_path | TEXT | Path to template file |
-| is_active | BOOLEAN | Whether template is active |
-| created_at | TIMESTAMP | Creation time |
-| updated_at | TIMESTAMP | Last update time |
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| id | INTEGER | PK, not null, autoincrement | Primary key |
+| template_name | VARCHAR(255) | not null | Unique template name |
+| file_path | VARCHAR(255) | not null | Path to template file |
+| is_active | BOOLEAN | not null, default: true | Whether template is active |
+| created_at | TIMESTAMP | not null | Creation time (auto) |
+| updated_at | TIMESTAMP | not null | Last update time |
 
-**Constraints:**
-- UNIQUE(template_name)
+> [!NOTE]
+> **Constraints:** UNIQUE(template_name)
 
 ---
-
 ### 4.2 document_groups
-
 Defines groups used to categorize document types.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INTEGER | Primary key |
-| name | VARCHAR(255) | Unique group name |
-| created_at | TIMESTAMP | Creation time |
-| updated_at | TIMESTAMP | Last update time |
-
-**Constraints:**
-- UNIQUE(name)
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| id | INTEGER | PK, not null, autoincrement | Primary key |
+| name | VARCHAR(255) | not null, unique | Unique group name |
+| created_at | TIMESTAMP | not null | Creation time |
+| updated_at | TIMESTAMP | not null | Last update time |
 
 ---
-
 ### 4.3 document_fields
-
 Defines dynamic fields used in document templates.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INTEGER | Primary key |
-| document_type_id | INTEGER | Related document type |
-| field_key | VARCHAR(255) | Template placeholder key |
-| field_type | ENUM | Type of input field |
-| source_table | VARCHAR(255) | Source table if AUTO |
-| source_field | VARCHAR(255) | Source field if AUTO |
-| is_required | BOOLEAN | Required field flag |
-| config_json | JSON | Extra configuration |
-| created_at | TIMESTAMP | Creation time |
-| updated_at | TIMESTAMP | Last update time |
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| id | INTEGER | PK, not null, autoincrement | Primary key |
+| document_type_id | INTEGER | not null | Related document type |
+| field_key | VARCHAR(255) | not null | Template placeholder key |
+| field_type | ENUM | not null | Type of input field |
+| source_table | VARCHAR(255) | null | Source table if AUTO |
+| source_field | VARCHAR(255) | null | Source field if AUTO |
+| is_required | BOOLEAN | not null, default: true | Required field flag |
+| config_json | JSON | null | Extra configuration (used when not AUTO) |
+| created_at | TIMESTAMP | not null | Creation time |
+| updated_at | TIMESTAMP | not null | Last update time |
 
-**Field Types:**
-- AUTO
-- INPUT
-- SELECT
-- DATE
-- NUMBER
+> [!TIP]
+> **Field Types:** `AUTO` · `INPUT` · `SELECT` · `DATE` · `NUMBER`
+> 
+> When `field_type = AUTO`, the value is pulled from `source_table`/`source_field`. Otherwise `config_json` drives the field behavior.
 
-**Constraints:**
-- UNIQUE(document_type_id, field_key)
-- INDEX(document_type_id)
+> [!NOTE]
+> **Constraints:**
+> - UNIQUE(document_type_id, field_key)
+> - INDEX(document_type_id)
 
 ---
-
 ### 4.4 document_groups_map
-
 Many-to-many relation between document groups and document types.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| group_id | INTEGER | Group reference |
-| document_type_id | INTEGER | Document type reference |
-| created_at | TIMESTAMP | Creation time |
-| updated_at | TIMESTAMP | Last update time |
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| document_group_id | INTEGER | PK, not null | Group reference |
+| document_type_id | INTEGER | PK, not null | Document type reference |
+| created_at | TIMESTAMP | not null | Creation time |
+| updated_at | TIMESTAMP | not null | Last update time |
 
-**Primary Key:**
-- (group_id, document_type_id)
+> [!NOTE]
+> **Primary Key:** (document_group_id, document_type_id)
+> **Index:** (document_type_id, document_group_id)
 
 ---
-
 ### 4.5 generated_documents
-
 Stores history of generated documents per user.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INTEGER | Primary key |
-| user_id | INTEGER | Owner user |
-| document_type_id | INTEGER | Related document type |
-| file_path | TEXT | Generated file path |
-| version | INTEGER | Version per user/document |
-| status | ENUM | Generation status |
-| created_at | TIMESTAMP | Creation time |
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| id | INTEGER | PK, not null, autoincrement | Primary key |
+| user_id | INTEGER | not null | Owner user |
+| document_type_id | INTEGER | not null | Related document type |
+| file_name | VARCHAR(255) | not null | Generated file name |
+| file_path | VARCHAR(255) | not null | Generated file path |
+| version | INTEGER | not null, default: 1 | Version per user/document |
+| status | ENUM | not null, default: PENDING | Generation status |
+| created_at | TIMESTAMP | not null | Creation time |
 
-**Status:**
-- PENDING
-- FAILED
-- SUCCESS
+> [!TIP]
+> **Status values:** `PENDING` → `SUCCESS` or `FAILED`
 
-**Constraints:**
-- UNIQUE(user_id, document_type_id, version)
-- INDEX(user_id, document_type_id)
+> [!NOTE]
+> **Constraints:**
+> - UNIQUE(user_id, document_type_id, version)
+> - INDEX(user_id, document_type_id)
 
 ---
-
 ### 4.6 users
-
 Stores system users.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INTEGER | Primary key |
-| first_name | VARCHAR(255) | First name |
-| last_name | VARCHAR(255) | Last name |
-| gender | ENUM(M,F) | Gender |
-| email | VARCHAR(255) | Unique email |
-| password | VARCHAR(255) | Hashed password |
-| role_id | INTEGER | Reference to role |
-| created_at | DATETIME | Creation time |
-| updated_at | TIMESTAMP | Last update time |
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| id | INTEGER | PK, not null, autoincrement | Primary key |
+| role_id | INTEGER | not null | Reference to role |
+| first_name | VARCHAR(255) | not null | First name |
+| last_name | VARCHAR(255) | not null | Last name |
+| matricule | VARCHAR(255) | null, unique | Staff ID (optional) |
+| gender | ENUM(M,F) | null | Gender |
+| email | VARCHAR(255) | not null, unique | Email address |
+| password | VARCHAR(255) | not null | Hashed password |
+| created_at | DATETIME | not null | Creation time |
+| updated_at | TIMESTAMP | not null | Last update time |
+
+> [!NOTE]
+> **Constraints:**
+> - UNIQUE(email)
+> - UNIQUE(matricule)
+> - INDEX(role_id)
+
+> [!WARNING]
+> `password` must always be stored hashed (bcrypt). Never store plain text.
 
 ---
-
 ### 4.7 role_document_types
-
 Defines which document types are accessible by each role.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| role_id | INTEGER | Role reference |
-| document_type_id | INTEGER | Document type reference |
-| created_at | TIMESTAMP | Creation time |
-| updated_at | TIMESTAMP | Last update time |
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| role_id | INTEGER | PK, not null | Role reference |
+| document_type_id | INTEGER | PK, not null | Document type reference |
+| created_at | TIMESTAMP | not null | Creation time |
+| updated_at | TIMESTAMP | not null | Last update time |
 
-**Primary Key:**
-- (role_id, document_type_id)
+> [!NOTE]
+> **Primary Key:** (role_id, document_type_id)
+> **Index:** (role_id, document_type_id)
 
 ---
-
 ### 4.8 roles
-
 Defines system roles.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INTEGER | Primary key |
-| name | VARCHAR(255) | Unique role name |
-| created_at | TIMESTAMP | Creation time |
-| updated_at | TIMESTAMP | Last update time |
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| id | INTEGER | PK, not null, autoincrement | Primary key |
+| name | VARCHAR(255) | not null, unique | Unique role name |
+| created_at | TIMESTAMP | not null | Creation time |
+| updated_at | TIMESTAMP | not null | Last update time |
 
 ---
+### 4.9 employees
+Extended profile for staff users, linked one-to-one with users.
 
+| Column | Type | Settings | Description |
+|--------|------|----------|-------------|
+| id | INTEGER | PK, not null, autoincrement | Primary key |
+| user_id | INTEGER | not null, unique | Reference to user |
+| matricule | VARCHAR(255) | not null, unique | Staff matricule |
+| grade | VARCHAR(255) | null | Staff grade |
+| position | VARCHAR(255) | null | Job position |
+| recruitment_date | DATE | null | Date of recruitment |
+| created_at | TIMESTAMP | not null | Creation time |
+| updated_at | TIMESTAMP | not null | Last update time |
+
+> [!TIP]
+> This table is only populated for users with a staff role. The `user_id` FK enforces the one-to-one via a unique constraint.
+
+---
 ## 5. Relationships
 
-- users → roles (many-to-one)
-- roles → document_types (many-to-many via role_document_types)
-- document_types → document_fields (one-to-many)
-- document_types → document_groups (many-to-many via document_groups_map)
-- users → generated_documents (one-to-many)
-- document_types → generated_documents (one-to-many)
+> [!IMPORTANT]
+> - `users` → `roles` — many-to-one
+> - `role_document_types` → `roles` — many-to-one
+> - `role_document_types` → `document_types` — many-to-one
+> - `document_fields` → `document_types` — many-to-one
+> - `generated_documents` → `document_types` — many-to-one
+> - `document_groups_map` → `document_types` — many-to-one
+> - `generated_documents` → `users` — many-to-one
+> - `document_groups_map` → `document_groups` — many-to-one
+> - `employees` → `users` — one-to-one
 
 ---
-
 ## 6. Database Diagram
 
 ```mermaid
 erDiagram
-	users }o--|| roles : references
-	role_document_types }o--|| roles : references
-	role_document_types }o--|| document_types : references
-	document_fields }o--|| document_types : references
-	generated_documents }o--|| document_types : references
-	document_groups_map }o--|| document_types : references
-	generated_documents }o--|| users : references
-	document_groups_map }o--|| document_groups : references
+    users }o--|| roles : references
+    role_document_types }o--|| roles : references
+    role_document_types }o--|| document_types : references
+    document_fields }o--|| document_types : references
+    generated_documents }o--|| document_types : references
+    document_groups_map }o--|| document_types : references
+    generated_documents }o--|| users : references
+    document_groups_map }o--|| document_groups : references
+    employees ||--|| users : references
 
-	document_types {
-		INTEGER id
-		VARCHAR(255) template_name
-		VARCHAR(255) file_path
-		BOOLEAN is_active
-		TIMESTAMP created_at
-		TIMESTAMP updated_at
-	}
-
-	document_groups {
-		INTEGER id
-		VARCHAR(255) name
-		TIMESTAMP created_at
-		TIMESTAMP updated_at
-	}
-
-	document_groups_map {
-		INTEGER document_group_id
-		INTEGER document_type_id
-		TIMESTAMP created_at
-		TIMESTAMP updated_at
-	}
-
-	document_fields {
-		INTEGER id
-		INTEGER document_type_id
-		VARCHAR(255) field_key
-		ENUM field_type
-		VARCHAR(255) source_table
-		VARCHAR(255) source_field
-		BOOLEAN is_required
-		JSON config_json
-		TIMESTAMP created_at
-		TIMESTAMP updated_at
-	}
-
-	generated_documents {
-		INTEGER id
-		INTEGER user_id
-		INTEGER document_type_id
-		VARCHAR(255) file_name
-		VARCHAR(255) file_path
-		INTEGER version
-		ENUM status
-		TIMESTAMP created_at
-	}
-
-	users {
-		INTEGER id
-		INTEGER role_id
-		VARCHAR(255) first_name
-		VARCHAR(255) last_name
-		ENUM gender
-		VARCHAR(255) email
-		VARCHAR(255) password
-		DATETIME created_at
-		TIMESTAMP updated_at
-	}
-
-	role_document_types {
-		INTEGER role_id
-		INTEGER document_type_id
-		TIMESTAMP created_at
-		TIMESTAMP updated_at
-	}
-
-	roles {
-		INTEGER id
-		VARCHAR(255) name
-		TIMESTAMP created_at
-		TIMESTAMP updated_at
-	}
+    document_types {
+        INTEGER id
+        VARCHAR(255) template_name
+        VARCHAR(255) file_path
+        BOOLEAN is_active
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    document_groups {
+        INTEGER id
+        VARCHAR(255) name
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    document_groups_map {
+        INTEGER document_group_id
+        INTEGER document_type_id
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    document_fields {
+        INTEGER id
+        INTEGER document_type_id
+        VARCHAR(255) field_key
+        ENUM field_type
+        VARCHAR(255) source_table
+        VARCHAR(255) source_field
+        BOOLEAN is_required
+        JSON config_json
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    generated_documents {
+        INTEGER id
+        INTEGER user_id
+        INTEGER document_type_id
+        VARCHAR(255) file_name
+        VARCHAR(255) file_path
+        INTEGER version
+        ENUM status
+        TIMESTAMP created_at
+    }
+    users {
+        INTEGER id
+        INTEGER role_id
+        VARCHAR(255) first_name
+        VARCHAR(255) last_name
+        VARCHAR(255) matricule
+        ENUM gender
+        VARCHAR(255) email
+        VARCHAR(255) password
+        DATETIME created_at
+        TIMESTAMP updated_at
+    }
+    role_document_types {
+        INTEGER role_id
+        INTEGER document_type_id
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    roles {
+        INTEGER id
+        VARCHAR(255) name
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    employees {
+        INTEGER id
+        INTEGER user_id
+        VARCHAR(255) matricule
+        VARCHAR(255) grade
+        VARCHAR(255) position
+        DATE recruitment_date
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
 ```
