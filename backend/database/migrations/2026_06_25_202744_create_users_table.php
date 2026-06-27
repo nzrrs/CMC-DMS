@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->foreignId('role_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('matricule')->nullable()->unique();
             $table->enum('gender', ['M', 'F'])->nullable();
             $table->string('email')->unique();
             $table->string('password');

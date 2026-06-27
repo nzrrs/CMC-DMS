@@ -10,6 +10,7 @@ class User extends Authenticatable
         'role_id',
         'first_name',
         'last_name',
+        'matricule',
         'gender',
         'email',
         'password',
@@ -32,5 +33,9 @@ class User extends Authenticatable
     public function generatedDocuments()
     {
         return $this->hasMany(GeneratedDocument::class);
+    }
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
     }
 }
