@@ -203,7 +203,6 @@ Stores system users.
 | role_id | INTEGER | not null | Reference to role |
 | first_name | VARCHAR(255) | not null | First name |
 | last_name | VARCHAR(255) | not null | Last name |
-| matricule | VARCHAR(255) | null, unique | Staff ID (optional) |
 | gender | ENUM(M,F) | null | Gender |
 | email | VARCHAR(255) | not null, unique | Email address |
 | password | VARCHAR(255) | not null | Hashed password |
@@ -213,7 +212,6 @@ Stores system users.
 > [!NOTE]
 > **Constraints:**
 > - UNIQUE(email)
-> - UNIQUE(matricule)
 > - INDEX(role_id)
 
 > [!WARNING]
@@ -339,7 +337,6 @@ erDiagram
         INTEGER role_id
         VARCHAR(255) first_name
         VARCHAR(255) last_name
-        VARCHAR(255) matricule
         ENUM gender
         VARCHAR(255) email
         VARCHAR(255) password
