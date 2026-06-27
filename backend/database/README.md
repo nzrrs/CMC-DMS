@@ -54,8 +54,8 @@ Stores document templates used for generation.
 | Column | Type | Settings | Description |
 |--------|------|----------|-------------|
 | id | INTEGER | PK, not null, autoincrement | Primary key |
-| template_name | VARCHAR(255) | not null | Unique template name |
-| file_path | VARCHAR(255) | not null | Path to template file |
+| name | VARCHAR(255) | not null | Unique template name |
+| template_path | VARCHAR(255) | not null | Path to template file |
 | is_active | BOOLEAN | not null, default: true | Whether template is active |
 | created_at | TIMESTAMP | not null | Creation time (auto) |
 | updated_at | TIMESTAMP | not null | Last update time |
@@ -292,8 +292,8 @@ erDiagram
 
     document_types {
         INTEGER id
-        VARCHAR(255) template_name
-        VARCHAR(255) file_path
+        VARCHAR(255) name
+        VARCHAR(255) template_path
         BOOLEAN is_active
         TIMESTAMP created_at
         TIMESTAMP updated_at
