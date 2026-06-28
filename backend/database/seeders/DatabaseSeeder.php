@@ -95,7 +95,7 @@ class DatabaseSeeder extends Seeder
         DB::table('document_types')->insert([
             [
                 'template_name' => 'Attestation de Travail',
-                'template_path' => 'templates/work-attestation.docx',
+                'template_path' => 'templates/attestation_travail.docx',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -181,6 +181,8 @@ class DatabaseSeeder extends Seeder
         // ── Role Document Types ──────────────────────────────────
         DB::table('role_document_types')->insert([
             ['role_id' => 2, 'document_type_id' => 1],
+            ['role_id' => 3, 'document_type_id' => 1],
+            ['role_id' => 1, 'document_type_id' => 1],
         ]);
     }
 }

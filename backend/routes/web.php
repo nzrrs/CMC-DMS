@@ -1,10 +1,37 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return response()->json([
-        'service' => 'CMC-DMS API',
-        'status' => 'OK',
-    ]);
+    return auth()->check()
+        ? redirect()->route('documents.index')
+        : redirect()->route('login');
+});
+
+Route::middleware('guest')->group(function () {
+
+    Route::get('/login', [AuthController::class, 'showLogin'])
+        ->name('login');
+
+    Route::post('/login', [AuthController::class, 'login']);
+
+});
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
+
+    Route::get('/documents/download', [DocumentController::class, 'download'])->name('documents.download');
+
+    Route::get('/documents/history', [DocumentController::class, 'history'])->name('documents.history');
+Route::get('/generated/{generated}/download', [DocumentController::class, 'downloadGenerated'])->name('generated.download');
+    Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
+
+    Route::post('/documents/{document}/generate', [DocumentController::class, 'generate'])->name('documents.generate');
+
+
+    Route::post('/logout', [AuthController::class, 'logout'])
+        ->name('logout');
 });

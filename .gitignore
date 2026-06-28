@@ -25,7 +25,8 @@
 
 /backend/storage/framework/views/**
 !/backend/storage/framework/views/.gitignore
-
+/backend/public/hot
+/backend/public/fonts-manifest.dev.json
 # Frontend
 /frontend/node_modules/
 /frontend/dist/
