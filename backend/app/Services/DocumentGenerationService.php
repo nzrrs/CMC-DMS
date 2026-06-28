@@ -140,7 +140,9 @@ class DocumentGenerationService
 
     private function systemValue($field, User $user)
     {
-        $config = $field->config_json ?? [];
+        $config = is_array($field->config_json)
+            ? $field->config_json
+            : json_decode($field->config_json ?? '{}', true) ?? [];
 
         return match ($config['generator'] ?? '') {
             'fullname' => strtoupper($user->last_name ?? '') . ' ' . ($user->first_name ?? ''),

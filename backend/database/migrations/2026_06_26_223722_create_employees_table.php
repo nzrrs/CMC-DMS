@@ -18,6 +18,7 @@ return new class extends Migration {
                 ->cascadeOnDelete();
 
             $table->string('matricule')->unique();
+            $table->string('phone')->nullable();
             $table->string('grade')->nullable();
             $table->string('position')->nullable();
             $table->date('recruitment_date')->nullable();

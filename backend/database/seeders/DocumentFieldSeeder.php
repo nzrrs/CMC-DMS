@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\DocumentField;
 
 
-class documentFieldSeeder extends Seeder
+class DocumentFieldSeeder extends Seeder
 {
     
     public function run(): void
@@ -90,10 +90,11 @@ class documentFieldSeeder extends Seeder
         [
             'document_type_id' => 2,
             'field_key' => 'year',
-            'field_type' => 'SYSTEM',
+            'field_type' => 'SELECT',
             'is_required' => true,
             'config_json' => json_encode([
-                'generator' => 'current_year',
+                "min" => 1974,
+                "max" => "current_year"
             ]),
         ],
 
@@ -327,13 +328,25 @@ class documentFieldSeeder extends Seeder
         ],
         [
             'document_type_id' => 9,
-            'field_key' => 'date_d',
+            'field_key' => 'date_depart',
+            'field_type' => 'DATE',
+            'is_required' => true,
+        ],
+        [
+            'document_type_id' => 9,
+            'field_key' => 'date_retour',
+            'field_type' => 'DATE',
+            'is_required' => true,
+        ],
+        [
+            'document_type_id' => 9,
+            'field_key' => 'heure_depart',
             'field_type' => 'INPUT',
             'is_required' => true,
         ],
         [
             'document_type_id' => 9,
-            'field_key' => 'date_r',
+            'field_key' => 'heure_retour',
             'field_type' => 'INPUT',
             'is_required' => true,
         ],
