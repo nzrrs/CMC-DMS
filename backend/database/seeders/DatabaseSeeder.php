@@ -181,6 +181,8 @@ class DatabaseSeeder extends Seeder
         // ── Role Document Types ──────────────────────────────────
         DB::table('role_document_types')->insert([
             ['role_id' => 2, 'document_type_id' => 1],
+            ['role_id' => 3, 'document_type_id' => 1],
+            ['role_id' => 1, 'document_type_id' => 1],
         ]);
     }
 }

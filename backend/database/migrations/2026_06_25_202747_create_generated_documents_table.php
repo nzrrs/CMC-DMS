@@ -24,7 +24,7 @@ return new class extends Migration {
                 ->restrictOnDelete();
 
             $table->string('generated_name');
-            $table->string('generated_path');
+            $table->string('generated_path')->nullable();
 
             $table->unsignedInteger('version')->default(1);
 
