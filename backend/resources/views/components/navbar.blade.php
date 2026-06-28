@@ -1,6 +1,6 @@
 <nav class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
     <span class="text-sm text-gray-500">
-        {{ ucfirst(request()->segment(1)) }}
+        @yield('title', ucfirst(request()->segment(1)))
     </span>
     <div class="flex items-center gap-4">
         <span class="text-sm font-medium text-gray-700">

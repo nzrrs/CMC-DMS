@@ -21,16 +21,16 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-
         if (!Auth::attempt($credentials)) {
             return back()->withErrors([
                 'email' => 'Invalid credentials.',
-            ]);
+            ])->withInput($request->only('email'));
+
         }
 
         $request->session()->regenerate();
 
-        return redirect()->route('documents.index');
+        return redirect()->intended(route('documents.index'));
     }
     public function logout(Request $request)
     {

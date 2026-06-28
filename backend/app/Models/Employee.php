@@ -15,7 +15,7 @@ class Employee extends Model
     ];
 
     protected $casts = [
-        'recruitment_date' => 'date',
+        'recruitment_date' => 'date:d/m/Y',
     ];
 
     public function user()
