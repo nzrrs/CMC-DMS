@@ -18,14 +18,14 @@ class GroupController extends Controller
 
         $groups = DocumentGroup::with('documentTypes')
             ->get()
-            ->filter(fn($g) => $g->documentTypes
+            ->filter(fn ($g) => $g->documentTypes
                 ->pluck('id')
                 ->intersect($userDocTypeIds)
                 ->isNotEmpty()
             )
-            ->map(fn($g) => [
-                'id'        => $g->id,
-                'name'      => $g->name,
+            ->map(fn ($g) => [
+                'id' => $g->id,
+                'name' => $g->name,
                 'doc_count' => $g->documentTypes->count(),
             ])
             ->values();
@@ -39,15 +39,10 @@ class GroupController extends Controller
 
         $fields = app(GroupDocumentService::class)
             ->getGroupFields($group)
-            ->map(fn($f) => [
-                'key'      => $f->field_key,
-                'type'     => $f->field_type,
-                'required' => $f->is_required,
-                'options'  => $f->config_json['options'] ?? null,
-            ]);
+            ->map(fn ($field) => $this->fieldPayload($field));
 
         return response()->json([
-            'group'  => $group->name,
+            'group' => $group->name,
             'fields' => $fields,
         ]);
     }
@@ -63,12 +58,12 @@ class GroupController extends Controller
             $fieldRules = [$field->is_required ? 'required' : 'nullable'];
 
             match ($field->field_type) {
-                'DATE'   => $fieldRules[] = 'date',
+                'DATE' => $fieldRules[] = 'date',
                 'NUMBER' => $fieldRules[] = 'numeric',
-                'SELECT' => isset($field->config_json['options'])
-                    ? $fieldRules[] = 'in:' . implode(',', $field->config_json['options'])
+                'SELECT' => isset($this->fieldConfig($field)['options'])
+                    ? $fieldRules[] = 'in:'.implode(',', $this->fieldConfig($field)['options'])
                     : null,
-                default  => null,
+                default => null,
             };
 
             $rules[$field->field_key] = $fieldRules;
@@ -81,18 +76,19 @@ class GroupController extends Controller
 
             // store per-user so download endpoint knows which file
             cache()->put(
-                "group_zip_{$group->id}_" . auth()->id(),
+                "group_zip_{$group->id}_".auth()->id(),
                 $zipPath,
                 now()->addMinutes(10)
             );
 
             return response()->json([
-                'message'      => 'Group generated successfully',
+                'message' => 'Group generated successfully',
                 'download_url' => route('api.groups.download', $group),
             ]);
 
         } catch (\Exception $e) {
             report($e);
+
             return response()->json(['message' => 'Generation failed'], 500);
         }
     }
@@ -101,9 +97,9 @@ class GroupController extends Controller
     {
         $this->authorizeAccess($group);
 
-        $path = cache()->get("group_zip_{$group->id}_" . auth()->id());
+        $path = cache()->get("group_zip_{$group->id}_".auth()->id());
 
-        if (!$path || !file_exists($path)) {
+        if (! $path || ! file_exists($path)) {
             return response()->json(['message' => 'No file ready, generate first'], 404);
         }
 
@@ -114,7 +110,45 @@ class GroupController extends Controller
     {
         $role = auth()->user()?->role;
         $groupIds = $group->documentTypes()->pluck('document_types.id');
-        $userIds  = $role?->documentTypes()->pluck('document_types.id') ?? collect();
+        $userIds = $role?->documentTypes()->pluck('document_types.id') ?? collect();
         abort_unless($groupIds->intersect($userIds)->isNotEmpty(), 403);
+    }
+
+    private function fieldPayload($field): array
+    {
+        return [
+            'key' => $field->field_key,
+            'type' => $field->field_type,
+            'required' => $field->is_required,
+            'options' => $this->fieldOptions($field),
+        ];
+    }
+
+    private function fieldOptions($field): ?array
+    {
+        if ($field->field_type !== 'SELECT') {
+            return null;
+        }
+
+        $config = $this->fieldConfig($field);
+
+        if (isset($config['min'], $config['max'])) {
+            $max = $config['max'] === 'current_year' ? now()->year : $config['max'];
+
+            return range((int) $max, (int) $config['min']);
+        }
+
+        return $config['options'] ?? [];
+    }
+
+    private function fieldConfig($field): array
+    {
+        $config = $field->config_json ?? [];
+
+        if (is_string($config)) {
+            $config = json_decode($config, true) ?? [];
+        }
+
+        return is_array($config) ? $config : [];
     }
 }
