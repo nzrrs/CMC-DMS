@@ -8,13 +8,17 @@ use ZipArchive;
 
 class GroupDocumentService
 {
+    //  Dependency injection 
     public function __construct(
         private DocumentGenerationService $generator
     ) {}
 
     /**
-     * Returns deduplicated INPUT/DATE/NUMBER/SELECT fields across all doc types in group.
-     * AUTO/SYSTEM fields are excluded — they resolve automatically in generation.
+     * This function take the group selected then get all the doc types with there fields,
+     * flat the fields of each doc type 
+     * filter the SYSTEM and AUTO types
+     * remove deplucates keys 
+     * re-index the collection 
      */
     public function getGroupFields(DocumentGroup $group): \Illuminate\Support\Collection
     {

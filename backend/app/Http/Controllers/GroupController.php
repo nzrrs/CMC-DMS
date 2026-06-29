@@ -31,15 +31,18 @@ class GroupController extends Controller
             match ($field->field_type) {
                 'DATE'   => $fieldRules[] = 'date',
                 'NUMBER' => $fieldRules[] = 'numeric',
+                // this return 'in:CDI,CDD,Stage' → Laravel rejects any submitted value from the form not in that list of allowed options
                 'SELECT' => isset($field->config_json['options'])
                     ? $fieldRules[] = 'in:' . implode(',', $field->config_json['options'])
                     : null,
                 default  => null,
             };
 
+            // put the key and the rules 
+
             $rules[$field->field_key] = $fieldRules;
         }
-
+        // Laravel validates — if anything fails, it redirects back with errors automatically.
         $validated = $request->validate($rules);
 
         try {
