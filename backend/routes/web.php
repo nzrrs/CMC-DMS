@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\GroupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,7 +33,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/documents/{document}/generate', [DocumentController::class, 'generate'])->name('documents.generate');
 
-
+    Route::get('/groups/download', [GroupController::class, 'download'])->name('groups.download');
+    Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
+    Route::post('/groups/{group}/generate', [GroupController::class, 'generate'])->name('groups.generate');
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
 });

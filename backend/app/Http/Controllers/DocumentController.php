@@ -11,8 +11,9 @@ class DocumentController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $documents = $user->role->documentTypes()->get();
-        return view('documents.index', compact('documents'));
+        $documents = $user->role->documentTypes()->with('groups')->get();
+        $groups = \App\Models\DocumentGroup::with('documentTypes')->get();
+        return view('documents.index', compact('documents', 'groups'));
     }
 
     public function show(DocumentType $document)
@@ -43,12 +44,12 @@ class DocumentController extends Controller
             }
 
             match ($field->field_type) {
-                'DATE'   => $fieldRules[] = 'date',
+                'DATE' => $fieldRules[] = 'date',
                 'NUMBER' => $fieldRules[] = 'numeric',
                 'SELECT' => isset($field->config_json['options'])
-                    ? $fieldRules[] = 'in:' . implode(',', $field->config_json['options'])
-                    : null,
-                default  => null,
+                ? $fieldRules[] = 'in:' . implode(',', $field->config_json['options'])
+                : null,
+                default => null,
             };
 
             $rules[$field->field_key] = $fieldRules;
