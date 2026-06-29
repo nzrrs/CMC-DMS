@@ -10,8 +10,8 @@
     @endif
 
     @if ($field->field_type === 'INPUT')
-        <input type="text" id="{{ $field->field_key }}" name="{{ $field->field_key }}"
-            value="{{ old($field->field_key) }}"
+        <input type="{{ in_array($field->field_key, ['heure_depart', 'heure_retour']) ? 'time' : 'text' }}"
+            id="{{ $field->field_key }}" name="{{ $field->field_key }}" value="{{ old($field->field_key) }}"
             class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
     @elseif($field->field_type === 'DATE')
         <input type="date" id="{{ $field->field_key }}" name="{{ $field->field_key }}"
@@ -24,10 +24,27 @@
     @elseif($field->field_type === 'SELECT')
         <select id="{{ $field->field_key }}" name="{{ $field->field_key }}"
             class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @foreach ($field->config_json['options'] as $option)
+
+            @php
+                $config = is_array($field->config_json)
+                    ? $field->config_json
+                    : json_decode($field->config_json, true) ?? [];
+
+                if (isset($config['min'], $config['max'])) {
+                    $max = $config['max'] === 'current_year' ? now()->year : $config['max'];
+
+                    $options = range($max, $config['min']);
+                } else {
+                    $options = $config['options'] ?? [];
+                }
+            @endphp
+
+            @foreach ($options as $option)
                 <option value="{{ $option }}" {{ old($field->field_key) == $option ? 'selected' : '' }}>
-                    {{ $option }}</option>
+                    {{ $option }}
+                </option>
             @endforeach
+
         </select>
     @endif
 </div>
