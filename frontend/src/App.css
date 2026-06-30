@@ -356,6 +356,13 @@ button:focus-visible {
   color: var(--color-brand-deep);
 }
 
+.ghost-button.active,
+.ghost-button:hover,
+.text-button:hover {
+  background: var(--color-soft);
+  border-color: rgba(40, 168, 188, 0.18);
+}
+
 .text-button {
   min-height: auto;
   padding: 4px 0;
@@ -384,6 +391,123 @@ button:disabled {
 
 .muted {
   color: var(--color-muted);
+}
+
+.history-view {
+  display: grid;
+  gap: 18px;
+}
+
+.history-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.history-heading h1 {
+  margin: 0;
+  color: var(--color-ink-strong);
+  font-size: 30px;
+  line-height: 1.15;
+}
+
+.history-heading p {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+.history-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.history-table th,
+.history-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: middle;
+}
+
+.history-table th {
+  color: var(--color-muted);
+  background: #f1f6f7;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.history-table td {
+  color: #314348;
+  font-size: 14px;
+}
+
+.history-table td strong,
+.history-file-name {
+  display: block;
+}
+
+.history-table td strong {
+  color: var(--color-ink);
+}
+
+.history-file-name {
+  margin-top: 3px;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 26px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.status-badge.success {
+  background: #e8f9fb;
+  color: var(--color-brand-deep);
+}
+
+.status-badge.failed {
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.compact-button {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+.history-empty {
+  margin: 0;
+  padding: 36px 16px;
+  color: var(--color-muted);
+  text-align: center;
 }
 
 @media (max-width: 860px) {
@@ -418,6 +542,10 @@ button:disabled {
   }
 
   .form-heading {
+    flex-direction: column;
+  }
+
+  .history-heading {
     flex-direction: column;
   }
 

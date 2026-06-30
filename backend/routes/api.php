@@ -12,9 +12,11 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/documents', [DocumentController::class, 'index']);
+    Route::get('/documents/history', [DocumentController::class, 'history']);
     Route::get('/documents/{document}/fields', [DocumentController::class, 'fields']);
     Route::post('/documents/{document}/generate', [DocumentController::class, 'generate']);
     Route::get('/documents/{document}/download', [DocumentController::class, 'download'])->name('api.documents.download');
+    Route::get('/generated/{generated}/download', [DocumentController::class, 'downloadGenerated'])->name('api.generated.download');
 
     Route::get('/groups', [GroupController::class, 'index']);
     Route::get('/groups/{group}/fields', [GroupController::class, 'fields']);

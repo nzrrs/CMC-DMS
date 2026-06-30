@@ -20,6 +20,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('documents')
   const [documents, setDocuments] = useState([])
   const [groups, setGroups] = useState([])
+  const [historyItems, setHistoryItems] = useState([])
   const [selectedItem, setSelectedItem] = useState(null)
   const [fieldTitle, setFieldTitle] = useState('')
   const [fields, setFields] = useState([])
@@ -32,6 +33,7 @@ function App() {
 
   const currentItems = activeTab === 'documents' ? documents : groups
   const activeLabel = activeTab === 'documents' ? 'document' : 'group'
+  const isHistoryView = routePath === '/history'
 
   const navigate = useCallback((path) => {
     window.history.pushState({}, '', path)
@@ -57,6 +59,20 @@ function App() {
     }
   }, [token])
 
+  const loadHistory = useCallback(async () => {
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const items = await apiRequest('/documents/history', {}, token)
+      setHistoryItems(items)
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [token])
+
   useEffect(() => {
     if (token) {
       const timer = window.setTimeout(() => {
@@ -66,6 +82,16 @@ function App() {
       return () => window.clearTimeout(timer)
     }
   }, [loadLists, token])
+
+  useEffect(() => {
+    if (token && isHistoryView) {
+      const timer = window.setTimeout(() => {
+        loadHistory()
+      }, 0)
+
+      return () => window.clearTimeout(timer)
+    }
+  }, [isHistoryView, loadHistory, token])
 
   useEffect(() => {
     function handlePopState() {
@@ -199,6 +225,7 @@ function App() {
     setUser(null)
     setDocuments([])
     setGroups([])
+    setHistoryItems([])
     clearSelection()
     navigate('/login')
   }
@@ -253,6 +280,20 @@ function App() {
     }
   }
 
+  async function handleDownloadHistory(item) {
+    setError('')
+
+    try {
+      await downloadFromApi(
+        `/generated/${item.id}/download`,
+        item.generated_name || `${item.document}.docx`,
+        token,
+      )
+    } catch (requestError) {
+      setError(requestError.message)
+    }
+  }
+
   function clearSelection() {
     setSelectedItem(null)
     setFieldTitle('')
@@ -267,6 +308,26 @@ function App() {
     setMessage('')
     clearSelection()
     navigate(`/${nextTab}`)
+  }
+
+  function showHistory() {
+    setError('')
+    setMessage('')
+    clearSelection()
+    navigate('/history')
+  }
+
+  function regenerateFromHistory(item) {
+    const document = documents.find(
+      (currentDocument) => currentDocument.id === item.document_type_id,
+    )
+
+    if (!document) {
+      setError('This document is not available for your current role.')
+      return
+    }
+
+    loadFields(document, 'documents')
   }
 
   function updateFieldValue(key, value) {
@@ -298,6 +359,8 @@ function App() {
       fields={fields}
       fieldTitle={fieldTitle}
       formValues={formValues}
+      historyItems={historyItems}
+      isHistoryView={isHistoryView}
       isGenerating={isGenerating}
       isLoading={isLoading}
       message={message}
@@ -305,11 +368,15 @@ function App() {
       user={user}
       onChangeTab={changeTab}
       onDownload={handleDownload}
+      onDownloadHistory={handleDownloadHistory}
       onGenerate={handleGenerate}
+      onHistory={showHistory}
       onHome={() => changeTab('documents')}
       onLoadFields={loadFields}
       onLogout={handleLogout}
       onRefresh={loadLists}
+      onRefreshHistory={loadHistory}
+      onRegenerateHistory={regenerateFromHistory}
       onUpdateField={updateFieldValue}
     />
   )

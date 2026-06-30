@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\DocumentType;
+use App\Models\GeneratedDocument;
 use App\Services\DocumentGenerationService;
 use Illuminate\Http\Request;
 
@@ -93,6 +94,41 @@ class DocumentController extends Controller
             ->whereNotNull('generated_path')
             ->latest()
             ->firstOrFail();
+
+        $path = storage_path('app/'.$generated->generated_path);
+
+        if (! file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->download($path, basename($path));
+    }
+
+    public function history()
+    {
+        $documents = auth()->user()
+            ->generatedDocuments()
+            ->with('documentType')
+            ->latest()
+            ->get()
+            ->map(fn (GeneratedDocument $document) => [
+                'id' => $document->id,
+                'document_type_id' => $document->document_type_id,
+                'document' => $document->documentType?->template_name ?? 'Unknown document',
+                'generated_name' => $document->generated_name,
+                'version' => $document->version,
+                'status' => $document->status,
+                'created_at' => $document->created_at?->toISOString(),
+                'can_download' => $document->status === 'SUCCESS' && filled($document->generated_path),
+            ]);
+
+        return response()->json($documents);
+    }
+
+    public function downloadGenerated(GeneratedDocument $generated)
+    {
+        abort_unless($generated->user_id === auth()->id(), 403);
+        abort_unless($generated->status === 'SUCCESS' && filled($generated->generated_path), 404);
 
         $path = storage_path('app/'.$generated->generated_path);
 

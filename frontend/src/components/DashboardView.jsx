@@ -1,5 +1,6 @@
 import AppHeader from './AppHeader'
 import DocumentForm from './DocumentForm'
+import HistoryView from './HistoryView'
 import Sidebar from './Sidebar'
 
 function DashboardView({
@@ -11,6 +12,8 @@ function DashboardView({
   fields,
   fieldTitle,
   formValues,
+  historyItems,
+  isHistoryView,
   isGenerating,
   isLoading,
   message,
@@ -18,16 +21,26 @@ function DashboardView({
   user,
   onChangeTab,
   onDownload,
+  onDownloadHistory,
   onGenerate,
+  onHistory,
   onHome,
   onLoadFields,
   onLogout,
   onRefresh,
+  onRefreshHistory,
+  onRegenerateHistory,
   onUpdateField,
 }) {
   return (
     <main className="app-shell">
-      <AppHeader user={user} onHome={onHome} onLogout={onLogout} />
+      <AppHeader
+        isHistoryActive={isHistoryView}
+        user={user}
+        onHistory={onHistory}
+        onHome={onHome}
+        onLogout={onLogout}
+      />
 
       <section className="dashboard">
         <Sidebar
@@ -41,7 +54,17 @@ function DashboardView({
         />
 
         <section className="workspace">
-          {!selectedItem ? (
+          {isHistoryView ? (
+            <HistoryView
+              error={error}
+              historyItems={historyItems}
+              isLoading={isLoading}
+              message={message}
+              onDownloadHistory={onDownloadHistory}
+              onRefreshHistory={onRefreshHistory}
+              onRegenerateHistory={onRegenerateHistory}
+            />
+          ) : !selectedItem ? (
             <div className="empty-state">
               <h1>Choose a {activeLabel}</h1>
               <p>
