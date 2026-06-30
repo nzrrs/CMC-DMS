@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+
 function Sidebar({
   activeTab,
   currentItems,
@@ -7,6 +9,27 @@ function Sidebar({
   onLoadFields,
   onRefresh,
 }) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const filteredItems = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase()
+
+    if (!normalizedSearch) {
+      return currentItems
+    }
+
+    return currentItems.filter((item) => {
+      const searchableText = [
+        item.name,
+        getItemMeta(item, activeTab),
+        ...(item.groups || []),
+      ]
+        .join(' ')
+        .toLowerCase()
+
+      return searchableText.includes(normalizedSearch)
+    })
+  }, [activeTab, currentItems, searchTerm])
+
   return (
     <aside className="sidebar">
       <div className="tabs" aria-label="Document type">
@@ -33,10 +56,21 @@ function Sidebar({
         </button>
       </div>
 
+      <label className="search-field" htmlFor="sidebar-search">
+        Search
+        <input
+          id="sidebar-search"
+          type="search"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder={`Search ${activeTab}`}
+        />
+      </label>
+
       {isLoading && !selectedItem && <p className="muted">Loading...</p>}
 
       <div className="item-list">
-        {currentItems.map((item) => (
+        {filteredItems.map((item) => (
           <button
             type="button"
             key={item.id}
@@ -48,6 +82,10 @@ function Sidebar({
           </button>
         ))}
       </div>
+
+      {!isLoading && filteredItems.length === 0 && (
+        <p className="muted">No {activeTab} match your search.</p>
+      )}
     </aside>
   )
 }
