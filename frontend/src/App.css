@@ -55,7 +55,6 @@
   font-size: 20px;
   font-weight: 800;
   line-height: 1.1;
-  text-transform: lowercase;
 }
 
 .brand span {
@@ -71,13 +70,10 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  border: 1px solid rgba(40, 168, 188, 0.24);
   border-radius: 8px;
-  background: #071113;
   color: var(--color-logo-gray);
   font-size: 12px;
   font-weight: 700;
-  text-transform: uppercase;
 }
 
 .logo-slot img {
@@ -561,3 +557,4 @@ button:disabled {
     font-size: 24px;
   }
 }
+

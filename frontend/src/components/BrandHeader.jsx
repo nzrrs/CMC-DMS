@@ -7,8 +7,8 @@ function BrandHeader() {
         <img src={logoUrl} alt="CMC logo" />
       </div>
       <div>
-        <strong>cmc-bmk</strong>
-        <span>Document management system</span>
+        <strong>CMC-DMS</strong>
+        <span>Document Management System</span>
       </div>
     </div>
   )
